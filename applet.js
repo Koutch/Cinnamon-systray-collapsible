@@ -43,6 +43,8 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "expand-icon-name", "expand_icon_name", this._setTray_button_icons, null);
         this.settings.bindProperty(Settings.BindingDirection.IN, "collapse-icon-name", "collapse_icon_name", this._setTray_button_icons, null);
         this.settings.bindProperty(Settings.BindingDirection.IN, "style-class", "style_class", this._setActorStyle, null);
+        ///@koutch to show players support by "Sound applet player". this._onDragEnd is to redisplay system tray 
+        this.settings.bindProperty(Settings.BindingDirection.IN, "show-hidden-player", "show_hidden_player", this._onDragEnd, null);
         ///to save icons_hide_by_user values in Cinnamon settings API
         this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "icons-hide-by-user", "icons_hide_by_user_settings",  this._loadIconsHideByUser, null);
 
@@ -118,9 +120,12 @@ MyApplet.prototype = {
     _onTrayIconAdded: function(o, icon, role) {
         try {
 
-            let hiddenIcons = ["network", "power", "keyboard", "gnome-settings-daemon", "volume", "bluetooth", "bluetooth-manager", "battery", "a11y", "banshee"];
+            let hiddenIcons = ["network", "power", "keyboard", "gnome-settings-daemon", "volume", "bluetooth", "bluetooth-manager", "battery", "a11y", "banshee", "tomahawk", "clementine", "amarok"];
             let buggyIcons = ["pidgin", "thunderbird"];
-
+			if (this.show_hidden_player){
+				///@koutch to show players support by "Sound applet player"
+				hiddenIcons = ["network", "power", "keyboard", "gnome-settings-daemon", "volume", "bluetooth", "bluetooth-manager", "battery", "a11y"];
+			}
             if (hiddenIcons.indexOf(role) != -1 ) {
                 // We've got an applet for that
                 return;
