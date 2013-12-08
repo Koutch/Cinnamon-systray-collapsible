@@ -62,6 +62,12 @@
     },
     "tooltip" : "Customizable through stylesheet.css "
  },
+ "show-hidden-player" : {
+    "type" : "checkbox",
+    "default" : false,
+    "description": "Show players support by sound applet",
+    "tooltip": "Show Banshee, Tomahawk, Clementine and Amarok in system tray"
+ },
  "icons-hide-by-user":{
     "type": "generic",
     "default" : "[]",
