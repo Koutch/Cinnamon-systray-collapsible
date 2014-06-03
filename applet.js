@@ -14,6 +14,7 @@ const Gio = imports.gi.Gio;
 /// Cinnamon settings
 const Settings = imports.ui.settings;  // Needed for settings API
 const Util = imports.misc.util;
+const Config = imports.misc.config; // To check cinnamon version to show/hide settings in context menu 
 ///---
 
 const ICON_SCALE_FACTOR = .88; // for custom panel heights, 22 (default icon size) / 25 (default panel height)
@@ -122,10 +123,10 @@ MyApplet.prototype = {
 
             let hiddenIcons = ["network", "power", "keyboard", "gnome-settings-daemon", "volume", "bluetooth", "bluetooth-manager", "battery", "a11y", "banshee", "tomahawk", "clementine", "amarok"];
             let buggyIcons = ["pidgin", "thunderbird"];
-			if (this.show_hidden_player){
-				///@koutch to show players support by "Sound applet player"
-				hiddenIcons = ["network", "power", "keyboard", "gnome-settings-daemon", "volume", "bluetooth", "bluetooth-manager", "battery", "a11y"];
-			}
+            if (this.show_hidden_player){
+		///@koutch to show players support by "Sound applet player"
+		hiddenIcons = ["network", "power", "keyboard", "gnome-settings-daemon", "volume", "bluetooth", "bluetooth-manager", "battery", "a11y"];
+            }
             if (hiddenIcons.indexOf(role) != -1 ) {
                 // We've got an applet for that
                 return;
@@ -327,6 +328,13 @@ MyApplet.prototype = {
         return true;
     },
 
+    _onButtonPressEvent: function (actor, event) {
+        Applet.IconApplet.prototype._onButtonPressEvent.call(this, actor, event);
+        if (event.get_button()==3)///right click
+            this._update_context_menu();
+        return true;
+    },
+
     _onDragBegin: function() {
         this._onBeforeRedisplay(); ///to destroy all icons
         this._clean_timeoutId();
@@ -470,7 +478,7 @@ MyApplet.prototype = {
 
                 if (event.get_button()==3){///right click
                     this._update_context_menu();
-                    this._applet_context_menu.toggle();
+                    //this._applet_context_menu.toggle();
                 }
             }
         }));
@@ -597,14 +605,30 @@ MyApplet.prototype = {
             this._applet_context_menu.addMenuItem(this.save_menu_item);
         }
 
-        this.edit_menu_item = new PopupMenu.PopupImageMenuItem(_('Settings'), "system-run-symbolic");
-        this.edit_menu_item.connect('activate', Lang.bind(this, function () {
-            Util.spawnCommandLine('cinnamon-settings applets systray-collapsible@koutch');
-        }));
-        this._applet_context_menu.addMenuItem(this.edit_menu_item);
+        /// @koutch check Cinnamon version
+        let cinnamonVersion = Config.PACKAGE_VERSION.split('.')
+        let majorVersion = parseInt(cinnamonVersion[0])
+
+        // for Cinnamon 1.x, build a menu item
+        if (majorVersion < 2) {
+            this.edit_menu_item = new PopupMenu.PopupImageMenuItem(_('Settings'), "system-run-symbolic");
+            this.edit_menu_item = new PopupMenu.PopupImageMenuItem(_("Configure..."), "system-run-symbolic");
+            this.edit_menu_item.connect('activate', Lang.bind(this, function () {
+                Util.spawnCommandLine('cinnamon-settings applets systray-collapsible@koutch');
+            }));		
+            this._applet_context_menu.addMenuItem(this.edit_menu_item);
+        }
+        else { 
+	    this.context_menu_item_remove = null;
+	    this.context_menu_separator = null;
+	    this.context_menu_item_configure = null;
+	    this.finalizeContextMenu();
+	}
+		
         this._applet_context_menu.open();
 
     },
+
 
     _on_switch_toggled: function(role) {
         if (this.icons_hide_by_user.indexOf(role) == -1 ) {
