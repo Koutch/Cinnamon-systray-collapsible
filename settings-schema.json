@@ -72,7 +72,7 @@
     "type" : "checkbox",
     "default" : false,
     "description": "Expand on hover",
-    "tooltip": "Expand the Systemtray on hover instead of requiring a click"
+    "tooltip": "Expand the system tray on hover instead of requiring a click"
  },
  "icons-hide-by-user":{
     "type": "generic",
