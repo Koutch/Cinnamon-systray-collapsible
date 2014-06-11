@@ -68,6 +68,12 @@
     "description": "Show players support by sound applet",
     "tooltip": "Show Banshee, Tomahawk, Clementine and Amarok in system tray"
  },
+ "expand-on-hover" : {
+    "type" : "checkbox",
+    "default" : false,
+    "description": "Expand on hover",
+    "tooltip": "Expand the Systemtray on hover instad of requiring a click"
+ },
  "icons-hide-by-user":{
     "type": "generic",
     "default" : "[]",
