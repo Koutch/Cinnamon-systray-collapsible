@@ -48,7 +48,9 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "show-hidden-player", "show_hidden_player", this._onDragEnd, null);
         ///to save icons_hide_by_user values in Cinnamon settings API
         this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "icons-hide-by-user", "icons_hide_by_user_settings",  this._loadIconsHideByUser, null);
-
+		///@mank319 whether or not to expand on hovering the expand button
+		this.settings.bindProperty(Settings.BindingDirection.IN, "expand-on-hover", "expand_on_hover", this._updateTray_button, null);
+		
         this.tray_icon_open =  new St.Icon();
         this.tray_icon_close =  new St.Icon();
         this.tray_button = new St.Button();
@@ -59,7 +61,7 @@ MyApplet.prototype = {
         this.tray_newHiddenIcon_Added = false;
 
         this.hidden_actor = new St.BoxLayout({});/// store hidden icons to keep them in bin box for "_onTrayIconRemoved" function
-
+		
         this.actual_hidden_role = [];
         this.actual_shown_role = [];
         this.added_icons =[];/// to fix icons are replaced by grey icons after dragging after dragging
@@ -482,6 +484,19 @@ MyApplet.prototype = {
                 }
             }
         }));
+		
+		///@mank319 Catch enter-event to expand on hovering the button
+		this.tray_button.connect('enter-event', Lang.bind(this, function(o, event){
+			/*  
+			 * Expand if the following criteria is met:
+			 * -expand on hover activated
+			 * -it is not expanded already (to avoid collapse on hover)
+			 * -panel edit mode is off
+			 */
+			if (this.expand_on_hover && !this.tray_isExpand && !global.settings.get_boolean('panel-edit-mode')) {
+             this._expandTray(this.expand_time);
+			}
+		}));
 
         let tray_icon_box = new St.Bin({ style_class: 'panel-status-button', reactive: true});
         tray_icon_box.add_actor(this.tray_button);
